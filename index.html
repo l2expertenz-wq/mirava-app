@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Mirava VPN — Быстрое подключение</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: var(--tg-theme-bg-color, #0f172a);
+      --secondary-bg: var(--tg-theme-secondary-bg-color, #1e293b);
+      --text: var(--tg-theme-text-color, #f8fafc);
+      --hint: var(--tg-theme-hint-color, #94a3b8);
+      --link: var(--tg-theme-link-color, #38bdf8);
+      --btn-bg: var(--tg-theme-button-color, #3b82f6);
+      --btn-text: var(--tg-theme-button-text-color, #ffffff);
+      --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+      padding-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* HEADER */
+    .header {
+      text-align: center;
+      padding: 12px 0 6px;
+    }
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: var(--accent-gradient);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--hint);
+      margin-top: 4px;
+    }
+
+    /* STATUS CARD */
+    .status-card {
+      background: var(--secondary-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge-pulse {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .expiry-text {
+      font-size: 13px;
+      color: var(--hint);
+    }
+
+    .key-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px dashed var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--hint);
+      word-break: break-all;
+      max-height: 48px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: all;
+    }
+
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text);
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-copy:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* DEVICE TABS */
+    .tabs-container {
+      display: flex;
+      background: var(--secondary-bg);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+      border: 1px solid var(--card-border);
+    }
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--hint);
+      padding: 10px 4px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* APPS LIST */
+    .app-card {
+      background: var(--secondary-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .app-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .app-icon.happ {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: white;
+    }
+    .app-icon.incy {
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: white;
+    }
+    .app-icon.other {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: white;
+    }
+    .app-info {
+      flex: 1;
+    }
+    .app-name {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag-recommended {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .app-desc {
+      font-size: 12px;
+      color: var(--hint);
+      margin-top: 2px;
+    }
+
+    .app-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-action-primary {
+      flex: 2;
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+      text-decoration: none;
+    }
+    .btn-action-primary:active {
+      transform: scale(0.98);
+    }
+    .btn-action-secondary {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 12px 10px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-action-secondary:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* INSTRUCTIONS */
+    .steps-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .steps-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--hint);
+    }
+    .step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--btn-bg);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* TOAST NOTIFICATION */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #22c55e;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-badge">🛡️</div>
+    <h1 class="title">Mirava VPN</h1>
+    <p class="subtitle">Быстрое подключение без блокировок</p>
+  </div>
+
+  <!-- STATUS CARD -->
+  <div class="status-card">
+    <div class="status-row">
+      <div class="badge-active">
+        <span class="badge-pulse"></span>
+        <span>Подписка активна</span>
+      </div>
+      <div class="expiry-text" id="expiry-label">До 2-х устройств</div>
+    </div>
+    <div class="key-box" id="key-preview">Загрузка ключа...</div>
+    <button class="btn-copy" id="btn-copy" onclick="copyKey()">
+      <span>📋 Скопировать ключ подключения</span>
+    </button>
+  </div>
+
+  <!-- DEVICE TABS -->
+  <div class="tabs-container">
+    <button class="tab-btn active" onclick="switchTab('ios', this)">
+      <span>🍏</span>
+      <span>iOS</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('android', this)">
+      <span>🤖</span>
+      <span>Android</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('windows', this)">
+      <span>💻</span>
+      <span>Windows</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('mac', this)">
+      <span>🍏</span>
+      <span>macOS</span>
+    </button>
+  </div>
+
+  <!-- CONTENT: iOS -->
+  <div id="content-ios" class="tab-content">
+    <div class="app-card">
+      <div class="app-header">
+        <div class="app-icon happ">⚡</div>
+        <div class="app-info">
+          <div class="app-name">
+            Happ Proxy
+            <span class="tag-recommended">Выбор №1</span>
+          </div>
+          <div class="app-desc">Современный протокол Reality, мгновенный коннект</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <button class="btn-action-primary" onclick="connectHapp()">
+          🚀 Подключить в Happ
+        </button>
+        <a class="btn-action-secondary" href="https://apps.apple.com/app/happ-proxy-utility/id6504287215" target="_blank">
+          Скачать
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card" style="margin-top: 12px;">
+      <div class="app-header">
+        <div class="app-icon incy">🛡️</div>
+        <div class="app-info">
+          <div class="app-name">INCY</div>
+          <div class="app-desc">Стильное приложение для обхода блокировок</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <button class="btn-action-primary" onclick="connectIncy()">
+          🚀 Подключить в INCY
+        </button>
+        <a class="btn-action-secondary" href="https://apps.apple.com/app/incy-vless/id6475654388" target="_blank">
+          Скачать
+        </a>
+      </div>
+    </div>
+
+    <div class="steps-card" style="margin-top: 12px;">
+      <div class="steps-title">💡 Инструкция в 2 шага:</div>
+      <div class="step-item">
+        <span class="step-num">1</span>
+        <span>Нажмите кнопку <b>«Скачать»</b> и установите Happ или INCY из App Store</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <span>Вернитесь сюда и нажмите <b>«🚀 Подключить»</b> — профиль добавится автоматически!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT: Android -->
+  <div id="content-android" class="tab-content hidden">
+    <div class="app-card">
+      <div class="app-header">
+        <div class="app-icon happ">⚡</div>
+        <div class="app-info">
+          <div class="app-name">
+            Happ Proxy
+            <span class="tag-recommended">Топ</span>
+          </div>
+          <div class="app-desc">Идеально для YouTube, Instagram и сайтов</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <button class="btn-action-primary" onclick="connectHapp()">
+          🚀 Подключить в Happ
+        </button>
+        <a class="btn-action-secondary" href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank">
+          Google Play
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card" style="margin-top: 12px;">
+      <div class="app-header">
+        <div class="app-icon incy">🛡️</div>
+        <div class="app-info">
+          <div class="app-name">INCY</div>
+          <div class="app-desc">Быстрый запуск и стабильная связь</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <button class="btn-action-primary" onclick="connectIncy()">
+          🚀 Подключить в INCY
+        </button>
+        <a class="btn-action-secondary" href="https://play.google.com/store/apps/details?id=app.incy.vpn" target="_blank">
+          Google Play
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card" style="margin-top: 12px;">
+      <div class="app-header">
+        <div class="app-icon other">🤖</div>
+        <div class="app-info">
+          <div class="app-name">v2rayNG</div>
+          <div class="app-desc">Классический проверенный VLESS клиент</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <button class="btn-action-primary" onclick="copyAndAlert()">
+          📋 Скопировать ключ
+        </button>
+        <a class="btn-action-secondary" href="https://play.google.com/store/apps/details?id=com.v2ray.ang" target="_blank">
+          Скачать
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT: Windows -->
+  <div id="content-windows" class="tab-content hidden">
+    <div class="app-card">
+      <div class="app-header">
+        <div class="app-icon other">💻</div>
+        <div class="app-info">
+          <div class="app-name">Hiddify / Happ Desktop</div>
+          <div class="app-desc">Мощное приложение для Windows 10/11</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <a class="btn-action-primary" href="https://github.com/hiddify/hiddify-next/releases/latest" target="_blank">
+          📥 Скачать Hiddify для Windows
+        </a>
+      </div>
+    </div>
+
+    <div class="steps-card" style="margin-top: 12px;">
+      <div class="steps-title">💡 Как настроить на ПК:</div>
+      <div class="step-item">
+        <span class="step-num">1</span>
+        <span>Скачайте и установите программу</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <span>Скопируйте ключ сверху кнопкой <b>«Скопировать»</b></span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">3</span>
+        <span>В программе нажмите <b>«+»</b> или Ctrl+V и нажмите <b>Connect</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT: macOS -->
+  <div id="content-mac" class="tab-content hidden">
+    <div class="app-card">
+      <div class="app-header">
+        <div class="app-icon other">🍏</div>
+        <div class="app-info">
+          <div class="app-name">V2Box / FoXray для Mac</div>
+          <div class="app-desc">Удобное подключение через Mac App Store</div>
+        </div>
+      </div>
+      <div class="app-actions">
+        <a class="btn-action-primary" href="https://apps.apple.com/app/v2box-v2ray-client/id6446814042" target="_blank">
+          App Store
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">
+    <span>✅</span>
+    <span id="toast-text">Ключ скопирован в буфер!</span>
+  </div>
+
+  <script>
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      try {
+        tg.setHeaderColor(tg.themeParams.bg_color || '#0f172a');
+      } catch(e) {}
+    }
+
+    // Получение ключа из URL query
+    const urlParams = new URLSearchParams(window.location.search);
+    const vlessKey = urlParams.get('key') || 'vless://example...';
+    const expDate = urlParams.get('exp') || '';
+
+    // Отображение данных
+    document.getElementById('key-preview').innerText = vlessKey;
+    if (expDate) {
+      document.getElementById('expiry-label').innerText = 'До ' + expDate;
+    }
+
+    // Переключение вкладок
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+      el.classList.add('active');
+      document.getElementById('content-' + tabId).classList.remove('hidden');
+
+      if (tg?.HapticFeedback) {
+        tg.HapticFeedback.selectionChanged();
+      }
+    }
+
+    // Подключение через Happ
+    function connectHapp() {
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+      // Прямой deep link в Happ
+      const deeplink = 'happ://add/' + encodeURIComponent(vlessKey);
+      window.location.href = deeplink;
+
+      // Также копируем в буфер на случай, если приложение не открылось
+      copyToClipboard(vlessKey);
+      setTimeout(() => {
+        showToast('Профиль передан в Happ! (Ключ также скопирован)');
+      }, 500);
+    }
+
+    // Подключение через INCY
+    function connectIncy() {
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+      // Прямой deep link в INCY
+      const deeplink = 'incy://' + vlessKey;
+      window.location.href = deeplink;
+
+      copyToClipboard(vlessKey);
+      setTimeout(() => {
+        showToast('Профиль передан в INCY! (Ключ также скопирован)');
+      }, 500);
+    }
+
+    // Копирование ключа
+    function copyKey() {
+      copyToClipboard(vlessKey);
+      showToast('Ключ скопирован в буфер обмена!');
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    function copyAndAlert() {
+      copyToClipboard(vlessKey);
+      showToast('Ключ скопирован! Вставьте его в v2rayNG');
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      text.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

@@ -9,21 +9,27 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0b1120">
   <title>Mirava VPN</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+  
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --bg: #0b1120;
       --card-bg: #1e293b;
       --card-border: rgba(255, 255, 255, 0.16);
-      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+      --card-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.65);
       
       --text-main: #ffffff;
       --text-secondary: #f1f5f9;
       --text-muted: #94a3b8;
       
-      --accent-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
-      --happ-gradient: linear-gradient(135deg, #059669, #0284c7);
-      --incy-gradient: linear-gradient(135deg, #6366f1, #c026d3);
+      --accent-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+      --happ-gradient: linear-gradient(135deg, #059669 0%, #0284c7 100%);
+      --incy-gradient: linear-gradient(135deg, #6366f1 0%, #c026d3 100%);
       
       --cyan: #38bdf8;
       --green: #4ade80;
@@ -35,7 +41,7 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     html {
@@ -50,7 +56,7 @@
       color: #ffffff !important;
       min-height: 100vh;
       padding: 16px;
-      padding-bottom: 45px;
+      padding-bottom: 50px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -59,49 +65,119 @@
     /* HEADER */
     .header {
       text-align: center;
-      padding: 10px 0 2px;
+      padding: 10px 0 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
     .logo-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 58px;
-      height: 58px;
-      border-radius: 20px;
-      background: var(--accent-gradient);
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
-      margin-bottom: 8px;
-      font-size: 30px;
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.55), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      margin-bottom: 10px;
+      font-size: 32px;
+      animation: glowPulse 3s infinite alternate;
     }
+
+    @keyframes glowPulse {
+      0% {
+        box-shadow: 0 0 22px rgba(59, 130, 246, 0.5), 0 0 45px rgba(139, 92, 246, 0.25);
+        transform: scale(1);
+      }
+      100% {
+        box-shadow: 0 0 35px rgba(236, 72, 153, 0.6), 0 0 60px rgba(59, 130, 246, 0.35);
+        transform: scale(1.03);
+      }
+    }
+
     .title {
-      font-size: 25px;
-      font-weight: 800;
+      font-size: 28px;
+      font-weight: 900;
       letter-spacing: -0.5px;
-      color: #ffffff !important;
+      background: linear-gradient(135deg, #60a5fa 0%, #c084fc 45%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      text-shadow: 0 4px 20px rgba(96, 165, 250, 0.25);
     }
+
     .subtitle {
-      font-size: 14px;
+      font-size: 13.5px;
       color: #cbd5e1 !important;
-      margin-top: 4px;
-      font-weight: 500;
+      margin-top: 3px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      justify-content: center;
     }
+
+    /* FEATURE CHIPS ROW */
+    .feature-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+      max-width: 360px;
+    }
+
+    .chip {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+      letter-spacing: 0.2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    .chip-yt { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
+    .chip-ig { background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.4); color: #f472b6; }
+    .chip-ai { background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+    .chip-dc { background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; }
+    .chip-loc { background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); color: #7dd3fc; }
 
     /* STATUS CARD */
     .status-card {
       background: #1e293b !important;
       border: 1px solid rgba(255, 255, 255, 0.16) !important;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 18px;
       box-shadow: var(--card-shadow);
       display: flex;
       flex-direction: column;
       gap: 14px;
+      position: relative;
+      overflow: hidden;
     }
+
+    .status-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-gradient);
+    }
+
     .status-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
+
     .badge-active {
       display: inline-flex;
       align-items: center;
@@ -110,10 +186,11 @@
       color: #4ade80 !important;
       padding: 6px 14px;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       border: 1px solid rgba(74, 222, 128, 0.35);
     }
+
     .badge-pulse {
       width: 9px;
       height: 9px;
@@ -121,42 +198,49 @@
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
+
     @keyframes pulse {
       0% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(1.3); }
       100% { opacity: 1; transform: scale(1); }
     }
+
     .servers-count-tag {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #ffffff !important;
       background: rgba(255, 255, 255, 0.12) !important;
       padding: 6px 12px;
-      border-radius: 12px;
-      font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     /* SUBSCRIPTION LINK BOX - ULTRA HIGH CONTRAST */
     .sub-box {
       background: #030712 !important;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 16px;
       border: 2px solid #0284c7 !important;
-      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.25);
+      box-shadow: 0 4px 18px rgba(2, 132, 199, 0.28);
     }
+
     .sub-label {
       font-size: 13px;
       color: #ffffff !important;
       margin-bottom: 8px;
       font-weight: 800;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 6px;
     }
+
     .sub-value {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
       font-size: 13px;
       font-weight: 700;
       word-break: break-all;
@@ -165,8 +249,19 @@
       line-height: 1.55;
       background: #0b1329 !important;
       padding: 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1.5px solid #0284c7 !important;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+    }
+
+    .sub-hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     /* BUTTONS */
@@ -183,9 +278,10 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45);
       transition: transform 0.1s, opacity 0.2s;
     }
+
     .btn-main-copy:active {
       transform: scale(0.98);
       opacity: 0.9;
@@ -196,6 +292,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+
     .btn-connect-happ {
       background: var(--happ-gradient) !important;
       color: #ffffff !important;
@@ -209,12 +306,14 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.45);
       transition: transform 0.1s;
     }
+
     .btn-connect-happ:active {
       transform: scale(0.97);
     }
+
     .btn-connect-incy {
       background: var(--incy-gradient) !important;
       color: #ffffff !important;
@@ -228,24 +327,26 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
       transition: transform 0.1s;
     }
+
     .btn-connect-incy:active {
       transform: scale(0.97);
     }
 
-    /* HOW TO CONNECT STEPS - ULTRA HIGH CONTRAST */
+    /* HOW TO CONNECT STEPS */
     .steps-card {
       background: #1e293b !important;
       border: 1px solid rgba(255, 255, 255, 0.16) !important;
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 18px;
       box-shadow: var(--card-shadow);
       display: flex;
       flex-direction: column;
       gap: 14px;
     }
+
     .steps-title {
       font-size: 14px;
       font-weight: 800;
@@ -256,15 +357,17 @@
       align-items: center;
       gap: 8px;
     }
+
     .step-item {
       display: flex;
       align-items: flex-start;
       gap: 14px;
       padding: 4px 0;
     }
+
     .step-num {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #2563eb !important;
       color: #ffffff !important;
@@ -277,22 +380,25 @@
       margin-top: 2px;
       box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
     }
+
     .step-num.green {
       background: #059669 !important;
       box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
     }
+
     .step-num.gold {
       background: #d97706 !important;
       box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
     }
+
     .step-content {
-      font-size: 14px;
+      font-size: 14.5px;
       line-height: 1.6;
       color: #f1f5f9 !important;
       font-weight: 600;
     }
     
-    /* SOLID CONTRAST BADGES - NEVER WASH OUT */
+    /* SOLID CONTRAST BADGES */
     .hl-blue {
       color: #ffffff !important;
       background: #2563eb !important;
@@ -302,6 +408,7 @@
       display: inline-block;
       box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
     }
+
     .hl-green {
       color: #ffffff !important;
       background: #059669 !important;
@@ -311,6 +418,7 @@
       display: inline-block;
       box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
     }
+
     .hl-gold {
       color: #ffffff !important;
       background: #d97706 !important;
@@ -325,13 +433,18 @@
     .section-header {
       margin-top: 6px;
     }
+
     .section-title {
       font-size: 14px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.6px;
       color: #cbd5e1 !important;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
+
     .device-tabs {
       display: flex;
       background: #0f172a !important;
@@ -340,6 +453,7 @@
       gap: 4px;
       border: 1px solid rgba(255, 255, 255, 0.15) !important;
     }
+
     .dev-tab {
       flex: 1;
       border: none;
@@ -347,7 +461,7 @@
       color: #94a3b8 !important;
       padding: 11px 4px;
       border-radius: 12px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -356,9 +470,11 @@
       gap: 4px;
       transition: all 0.2s;
     }
+
     .dev-tab.active {
       background: #2563eb !important;
       color: #ffffff !important;
+      font-weight: 800;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
     }
 
@@ -374,39 +490,49 @@
       justify-content: space-between;
       gap: 12px;
     }
+
     .app-info {
       display: flex;
       align-items: center;
       gap: 12px;
     }
+
     .app-icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 24px;
       flex-shrink: 0;
     }
+
     .app-icon.happ {
       background: var(--happ-gradient);
       color: #ffffff;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
     }
+
     .app-icon.incy {
       background: var(--incy-gradient);
       color: #ffffff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
     }
+
     .app-name {
       font-size: 16px;
       font-weight: 800;
       color: #ffffff !important;
     }
+
     .app-desc {
       font-size: 13px;
       color: #cbd5e1 !important;
       margin-top: 3px;
+      font-weight: 500;
     }
+
     .btn-download {
       background: #2563eb !important;
       color: #ffffff !important;
@@ -414,13 +540,14 @@
       padding: 10px 16px;
       border-radius: 12px;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       text-decoration: none;
       white-space: nowrap;
       transition: opacity 0.2s;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
     }
+
     .btn-download:active {
       opacity: 0.85;
     }
@@ -440,10 +567,12 @@
       transition: opacity 0.25s ease;
       z-index: 999;
     }
+
     .modal-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
+
     .modal-card {
       background: #1e293b !important;
       border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -451,24 +580,28 @@
       padding: 24px;
       max-width: 360px;
       width: 100%;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
       transform: translateY(20px);
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: center;
     }
+
     .modal-overlay.active .modal-card {
       transform: translateY(0);
     }
+
     .modal-icon {
-      font-size: 38px;
+      font-size: 42px;
       margin-bottom: 12px;
     }
+
     .modal-title {
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 800;
       margin-bottom: 10px;
       color: #ffffff !important;
     }
+
     .modal-desc {
       font-size: 14px;
       color: #f1f5f9 !important;
@@ -476,10 +609,12 @@
       margin-bottom: 20px;
       text-align: left;
     }
+
     .modal-desc b {
       color: #ffffff !important;
       font-weight: 800;
     }
+
     .modal-btn {
       width: 100%;
       background: var(--accent-gradient) !important;
@@ -490,6 +625,7 @@
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
     }
 
     /* TOAST */
@@ -514,6 +650,7 @@
       z-index: 1000;
       pointer-events: none;
     }
+
     .toast.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
@@ -526,7 +663,22 @@
   <div class="header">
     <div class="logo-badge">⚡</div>
     <div class="title">Mirava VPN</div>
-    <div class="subtitle">Быстрое подключение без ограничений</div>
+    <div class="subtitle">
+      <span>🚀</span>
+      <span>Свободный и быстрый интернет</span>
+      <span>⚡</span>
+    </div>
+
+    <!-- FEATURE CHIPS -->
+    <div class="feature-chips">
+      <span class="chip chip-yt">🎬 YouTube 4K</span>
+      <span class="chip chip-ig">📸 Instagram</span>
+      <span class="chip chip-ai">🤖 ChatGPT</span>
+      <span class="chip chip-dc">🎮 Discord</span>
+      <span class="chip chip-loc">🇸🇪 Швеция</span>
+      <span class="chip chip-loc">🇩🇪 Германия</span>
+      <span class="chip chip-loc">🇳🇱 Нидерланды</span>
+    </div>
   </div>
 
   <!-- STATUS CARD -->
@@ -537,14 +689,22 @@
         Подписка активна
       </div>
       <div class="servers-count-tag">
-        🌍 Все локации доступны
+        🌍 Все локации (🇸🇪 🇩🇪 🇳🇱)
       </div>
     </div>
 
     <!-- SUBSCRIPTION LINK BOX -->
     <div class="sub-box">
-      <div class="sub-label">🔑 ВАШ УНИВЕРСАЛЬНЫЙ КЛЮЧ ПОДПИСКИ:</div>
+      <div class="sub-label">
+        <span>🔑</span>
+        <span>ВАШ УНИВЕРСАЛЬНЫЙ КЛЮЧ ПОДПИСКИ</span>
+        <span>⚡</span>
+      </div>
       <div class="sub-value" id="sub-url-text">Загрузка ключа...</div>
+      <div class="sub-hint">
+        <span>💡</span>
+        <span>Нажмите кнопку ниже для импорта всех серверов в 1 клик</span>
+      </div>
     </div>
 
     <button class="btn-main-copy" id="btn-copy-main">
@@ -570,26 +730,29 @@
     <div class="step-item">
       <div class="step-num">1</div>
       <div class="step-content">
-        Нажмите кнопку <span class="hl-blue">«Скопировать ключ в 1 клик»</span> выше.
+        Нажмите кнопку <span class="hl-blue">«📋 Скопировать ключ в 1 клик»</span> выше.
       </div>
     </div>
     <div class="step-item">
       <div class="step-num green">2</div>
       <div class="step-content">
-        Откройте приложение <span class="hl-green">Happ Proxy</span> (или v2rayN / Hiddify).
+        Откройте приложение <span class="hl-green">⚡ Happ Proxy</span> (или v2rayN / Hiddify).
       </div>
     </div>
     <div class="step-item">
       <div class="step-num gold">3</div>
       <div class="step-content">
-        Приложение автоматически предложит добавить все серверы — выберите нужную страну и нажмите <span class="hl-gold">Connect</span>!
+        Приложение автоматически предложит добавить все серверы — выберите нужную страну и нажмите <span class="hl-gold">▶️ Connect</span>!
       </div>
     </div>
   </div>
 
   <!-- DEVICE APPS & DOWNLOADS -->
   <div class="section-header">
-    <div class="section-title">Скачать приложение для вашего устройства</div>
+    <div class="section-title">
+      <span>📲</span>
+      <span>Скачать приложение для вашего устройства</span>
+    </div>
   </div>
 
   <div class="device-tabs">

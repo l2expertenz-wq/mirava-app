@@ -6,21 +6,25 @@
   <title>Mirava VPN</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    /* HIGH CONTRAST DARK THEME */
     :root {
-      --bg: var(--tg-theme-bg-color, #0f172a);
-      --secondary-bg: var(--tg-theme-secondary-bg-color, #1e293b);
-      --text: var(--tg-theme-text-color, #f8fafc);
-      --hint: var(--tg-theme-hint-color, #94a3b8);
-      --link: var(--tg-theme-link-color, #38bdf8);
-      --btn-bg: var(--tg-theme-button-color, #3b82f6);
-      --btn-text: var(--tg-theme-button-text-color, #ffffff);
-      --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      --happ-gradient: linear-gradient(135deg, #10b981, #06b6d4);
-      --incy-gradient: linear-gradient(135deg, #6366f1, #ec4899);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: rgba(255, 255, 255, 0.12);
+      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      
+      --text-main: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      --accent-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+      --happ-gradient: linear-gradient(135deg, #059669, #0284c7);
+      --incy-gradient: linear-gradient(135deg, #6366f1, #c026d3);
+      
       --success: #22c55e;
-      --warning: #f59e0b;
+      --success-bg: rgba(34, 197, 94, 0.2);
+      --cyan: #38bdf8;
+      --gold: #fbbf24;
     }
 
     * {
@@ -32,11 +36,11 @@
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg) !important;
+      color: var(--text-main) !important;
       min-height: 100vh;
       padding: 16px;
-      padding-bottom: 40px;
+      padding-bottom: 45px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -45,37 +49,38 @@
     /* HEADER */
     .header {
       text-align: center;
-      padding: 10px 0 4px;
+      padding: 10px 0 2px;
     }
     .logo-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 56px;
-      height: 56px;
-      border-radius: 18px;
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
       background: var(--accent-gradient);
-      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
       margin-bottom: 8px;
-      font-size: 28px;
+      font-size: 30px;
     }
     .title {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
       letter-spacing: -0.5px;
+      color: #ffffff !important;
     }
     .subtitle {
-      font-size: 13px;
-      color: var(--hint);
+      font-size: 14px;
+      color: var(--text-muted) !important;
       margin-top: 4px;
     }
 
     /* STATUS CARD */
     .status-card {
-      background: var(--secondary-bg);
+      background: var(--card-bg) !important;
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 16px;
+      padding: 18px;
       box-shadow: var(--card-shadow);
       display: flex;
       flex-direction: column;
@@ -89,18 +94,18 @@
     .badge-active {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-      padding: 6px 12px;
+      gap: 8px;
+      background: var(--success-bg);
+      color: #4ade80 !important;
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
     }
     .badge-pulse {
-      width: 8px;
-      height: 8px;
-      background: var(--success);
+      width: 9px;
+      height: 9px;
+      background: #4ade80;
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
@@ -110,53 +115,54 @@
       100% { opacity: 1; transform: scale(1); }
     }
     .servers-count-tag {
-      font-size: 12px;
-      color: var(--hint);
-      background: rgba(255, 255, 255, 0.06);
-      padding: 5px 12px;
+      font-size: 13px;
+      color: var(--text-secondary) !important;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
       border-radius: 12px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     /* SUBSCRIPTION LINK BOX */
     .sub-box {
-      background: rgba(0, 0, 0, 0.28);
+      background: #090e17 !important;
       border-radius: 14px;
-      padding: 12px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
     }
     .sub-label {
       font-size: 11px;
-      color: var(--hint);
+      color: var(--text-muted) !important;
       margin-bottom: 6px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
       text-transform: uppercase;
     }
     .sub-value {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 600;
       word-break: break-all;
-      color: #38bdf8;
+      color: var(--cyan) !important;
       user-select: all;
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     /* BUTTONS */
     .btn-main-copy {
       background: var(--accent-gradient);
-      color: white;
+      color: #ffffff !important;
       border: none;
-      padding: 14px;
+      padding: 15px;
       border-radius: 16px;
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+      gap: 10px;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
       transition: transform 0.1s, opacity 0.2s;
     }
     .btn-main-copy:active {
@@ -171,18 +177,18 @@
     }
     .btn-connect-happ {
       background: var(--happ-gradient);
-      color: white;
+      color: #ffffff !important;
       border: none;
-      padding: 12px;
+      padding: 13px 10px;
       border-radius: 14px;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
       transition: transform 0.1s;
     }
     .btn-connect-happ:active {
@@ -190,18 +196,18 @@
     }
     .btn-connect-incy {
       background: var(--incy-gradient);
-      color: white;
+      color: #ffffff !important;
       border: none;
-      padding: 12px;
+      padding: 13px 10px;
       border-radius: 14px;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
       transition: transform 0.1s;
     }
     .btn-connect-incy:active {
@@ -210,68 +216,80 @@
 
     /* HOW TO CONNECT STEPS */
     .steps-card {
-      background: var(--secondary-bg);
+      background: var(--card-bg) !important;
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 16px;
+      padding: 18px;
       box-shadow: var(--card-shadow);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
     .steps-title {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--hint);
+      letter-spacing: 0.6px;
+      color: var(--text-secondary) !important;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .step-item {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      padding: 8px 0;
+      gap: 14px;
+      padding: 4px 0;
     }
     .step-num {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
-      font-weight: 700;
-      font-size: 13px;
+      background: rgba(37, 99, 235, 0.3);
+      color: #93c5fd !important;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      font-weight: 800;
+      font-size: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      margin-top: 2px;
+      margin-top: 1px;
     }
     .step-content {
-      font-size: 13px;
-      line-height: 1.45;
-      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-secondary) !important;
     }
-    .step-content b {
-      color: #fff;
+    
+    /* High contrast text highlights */
+    .hl-blue {
+      color: #60a5fa !important;
+      font-weight: 700;
+    }
+    .hl-green {
+      color: #4ade80 !important;
+      font-weight: 700;
+    }
+    .hl-gold {
+      color: #fbbf24 !important;
+      font-weight: 700;
     }
 
     /* DEVICE TABS */
     .section-header {
-      margin-top: 8px;
+      margin-top: 6px;
     }
     .section-title {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--hint);
+      letter-spacing: 0.6px;
+      color: var(--text-secondary) !important;
     }
     .device-tabs {
       display: flex;
-      background: var(--secondary-bg);
+      background: var(--card-bg) !important;
       border-radius: 16px;
       padding: 4px;
       gap: 4px;
@@ -281,11 +299,11 @@
       flex: 1;
       border: none;
       background: transparent;
-      color: var(--hint);
-      padding: 10px 4px;
+      color: var(--text-muted) !important;
+      padding: 11px 4px;
       border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -294,17 +312,17 @@
       transition: all 0.2s;
     }
     .dev-tab.active {
-      background: var(--btn-bg);
-      color: white;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+      background: #2563eb !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
     }
 
     /* APP CARDS */
     .app-card {
-      background: var(--secondary-bg);
+      background: var(--card-bg) !important;
       border: 1px solid var(--card-border);
       border-radius: 18px;
-      padding: 14px;
+      padding: 16px;
       box-shadow: var(--card-shadow);
       display: flex;
       align-items: center;
@@ -317,55 +335,57 @@
       gap: 12px;
     }
     .app-icon {
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 24px;
       flex-shrink: 0;
     }
     .app-icon.happ {
       background: var(--happ-gradient);
-      color: white;
+      color: #ffffff;
     }
     .app-icon.incy {
       background: var(--incy-gradient);
-      color: white;
+      color: #ffffff;
     }
     .app-name {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff !important;
     }
     .app-desc {
-      font-size: 12px;
-      color: var(--hint);
-      margin-top: 2px;
+      font-size: 13px;
+      color: var(--text-muted) !important;
+      margin-top: 3px;
     }
     .btn-download {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
+      background: #2563eb !important;
+      color: #ffffff !important;
       border: none;
-      padding: 10px 14px;
+      padding: 10px 16px;
       border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
       text-decoration: none;
       white-space: nowrap;
-      transition: background 0.2s;
+      transition: opacity 0.2s;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
     }
     .btn-download:active {
-      background: rgba(255, 255, 255, 0.2);
+      opacity: 0.85;
     }
 
     /* MODAL */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(5px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -380,13 +400,13 @@
       pointer-events: auto;
     }
     .modal-card {
-      background: #1e293b;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #1e293b !important;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 24px;
       padding: 24px;
       max-width: 360px;
       width: 100%;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
       transform: translateY(20px);
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: center;
@@ -395,33 +415,34 @@
       transform: translateY(0);
     }
     .modal-icon {
-      font-size: 36px;
+      font-size: 38px;
       margin-bottom: 12px;
     }
     .modal-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #ffffff !important;
     }
     .modal-desc {
       font-size: 14px;
-      color: var(--hint);
-      line-height: 1.5;
-      margin-bottom: 18px;
+      color: var(--text-secondary) !important;
+      line-height: 1.55;
+      margin-bottom: 20px;
       text-align: left;
     }
     .modal-desc b {
-      color: #fff;
+      color: #ffffff !important;
     }
     .modal-btn {
       width: 100%;
       background: var(--accent-gradient);
-      color: white;
+      color: #ffffff !important;
       border: none;
-      padding: 13px;
+      padding: 14px;
       border-radius: 14px;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
     }
 
@@ -431,17 +452,17 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: #1e293b;
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 12px 20px;
+      background: #0f172a;
+      color: #ffffff !important;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 12px 22px;
       border-radius: 24px;
       font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       opacity: 0;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 1000;
@@ -476,7 +497,7 @@
 
     <!-- SUBSCRIPTION LINK BOX -->
     <div class="sub-box">
-      <div class="sub-label">🔗 Ваш универсальный ключ подписки:</div>
+      <div class="sub-label">🔗 Ваш персональный ключ подписки:</div>
       <div class="sub-value" id="sub-url-text">Загрузка ключа...</div>
     </div>
 
@@ -503,19 +524,19 @@
     <div class="step-item">
       <div class="step-num">1</div>
       <div class="step-content">
-        Нажмите кнопку <b>«Скопировать ключ в 1 клик»</b> выше.
+        Нажмите кнопку <span class="hl-blue">«Скопировать ключ в 1 клик»</span> выше.
       </div>
     </div>
     <div class="step-item">
       <div class="step-num">2</div>
       <div class="step-content">
-        Откройте приложение <b>Happ Proxy</b> (или v2rayN / Hiddify).
+        Откройте приложение <span class="hl-green">Happ Proxy</span> (или v2rayN / Hiddify).
       </div>
     </div>
     <div class="step-item">
       <div class="step-num">3</div>
       <div class="step-content">
-        Приложение автоматически предложит добавить все серверы — выберите нужную страну и нажмите <b>Connect</b>!
+        Приложение автоматически предложит добавить все серверы — выберите нужную страну и нажмите <span class="hl-gold">Connect</span>!
       </div>
     </div>
   </div>
@@ -532,7 +553,7 @@
     <button class="dev-tab" data-dev="mac">🍏 macOS</button>
   </div>
 
-  <div id="device-apps-container" style="display: flex; flex-direction: column; gap: 8px;">
+  <div id="device-apps-container" style="display: flex; flex-direction: column; gap: 10px;">
     <!-- Rendered dynamically based on active dev-tab -->
   </div>
 
@@ -664,7 +685,6 @@
       copyText(subUrl, 'Ключ скопирован в буфер обмена!');
       if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
-      // Попытка открыть протокол Happ
       try {
         const link = document.createElement('a');
         link.href = `happ://add/${subUrl}`;
@@ -677,7 +697,6 @@
         window.location.href = `happ://add/${subUrl}`;
       } catch (e) {}
 
-      // Наглядная подсказка пользователю
       showModal(
         '⚡ Добавление в Happ Proxy',
         'Ключ уже <b>скопирован в буфер обмена</b>!<br><br>' +

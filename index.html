@@ -809,7 +809,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const userUuid = urlParams.get('uuid') || '8490bdd2-7990-41a4-b462-64e2fc4257bf';
     const userAuth = urlParams.get('auth') || 'wfi4f5766fe1gyay';
-    const subParam = urlParams.get('sub') || urlParams.get('key') || '';
+    const subParam = urlParams.get('u') || urlParams.get('url') || urlParams.get('sub') || urlParams.get('key') || '';
     const subId = urlParams.get('sub_id') || '';
 
     let subUrl = (subParam && subParam.startsWith('http')) ? subParam : '';
@@ -1000,6 +1000,11 @@
 
     // Initial render
     renderDeviceApps(currentDevice);
+
+    // Auto-connect to Happ if requested via query param
+    if (urlParams.has('happ') || urlParams.get('auto') === 'happ' || urlParams.get('action') === 'happ') {
+      setTimeout(connectHapp, 300);
+    }
 
   </script>
 </body>

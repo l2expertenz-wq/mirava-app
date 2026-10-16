@@ -178,10 +178,23 @@
   // ==============================================================
   // 3.5. АУДИОМЕНЕДЖЕР КОЛЕСА ФОРТУНЫ (HTML5 Audio)
   // ==============================================================
+  const CURRENT_SCRIPT_SRC = (typeof document !== 'undefined' && document.currentScript && document.currentScript.src)
+    ? document.currentScript.src
+    : (typeof window !== 'undefined' ? window.location.href : '');
+
+  function resolveSoundUrl(relativePath) {
+    try {
+      if (CURRENT_SCRIPT_SRC) {
+        return new URL(relativePath, CURRENT_SCRIPT_SRC).href;
+      }
+    } catch (e) {}
+    return relativePath;
+  }
+
   const SOUND_CONFIG = {
-    start: 'sounds/spin_start.wav',
-    tick: 'sounds/spin_tick.wav',
-    win: 'sounds/win.wav'
+    start: resolveSoundUrl('sounds/spin_start.wav'),
+    tick: resolveSoundUrl('sounds/spin_tick.wav'),
+    win: resolveSoundUrl('sounds/win.wav')
   };
 
   // Состояние звука (с сохранением в localStorage)
@@ -198,6 +211,9 @@
     audio.preload = 'auto';
     audio.volume = volume;
     audio.src = src;
+    audio.addEventListener('error', e => {
+      console.warn('Audio failed to load from:', src, e);
+    });
     return audio;
   }
 
@@ -227,8 +243,11 @@
         const p = a.play();
         if (p !== undefined) {
           p.then(() => {
-            a.pause();
-            a.currentTime = 0;
+            // Не сбрасываем startAudio, если прямо сейчас запущено вращение колеса
+            if (!isSpinning || a !== startAudio) {
+              a.pause();
+              a.currentTime = 0;
+            }
           }).catch(() => {});
         }
       } catch (e) {}

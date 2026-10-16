@@ -1217,17 +1217,70 @@
       } catch (e) {}
     }
 
-    // Parse URL params
+    // Parse URL params (поддерживаем как query string ?..., так и hash #...)
     const urlParams = new URLSearchParams(window.location.search);
-    const rawStatus = (urlParams.get('status') || '').toLowerCase().trim();
-    const rawReason = (urlParams.get('reason') || '').toLowerCase().trim();
-    const expParam = urlParams.get('exp') || urlParams.get('expires_at') || '';
-    const expTsParam = urlParams.get('exp_ts') || '';
-    const expTextParam = urlParams.get('exp_text') || '';
-    const subParam = urlParams.get('u') || urlParams.get('url') || urlParams.get('sub') || urlParams.get('key') || '';
-    const subId = urlParams.get('sub_id') || '';
-    const userAuth = urlParams.get('auth') || '';
-    const userUuid = urlParams.get('uuid') || '';
+    const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash);
+
+    function getParam(key) {
+      return (urlParams.get(key) || hashParams.get(key) || '').trim();
+    }
+    function hasParam(key) {
+      return urlParams.has(key) || hashParams.has(key);
+    }
+
+    // ==============================================================
+    // КОНФИГУРАЦИЯ БЭКЕНДА И API (Mirava VPN Backend)
+    // ==============================================================
+    // Публичный URL боевого бэкенда (API Колеса фортуны, проверка статуса и вебхуки)
+    const PUBLIC_BACKEND_URL = 'https://mirava.dedyn.io:8080';
+
+    // Определение базового адреса API бэкенда:
+    // 1) Из query/hash параметров запуска (?api=... / ?api_url=... / ?apiUrl=... / ?backend=...)
+    // 2) Из глобальной переменной window.API_URL / window.__API_URL__ (если внедрена конфигурация)
+    // 3) Локальный хост (localhost / 127.0.0.1) при локальной разработке
+    // 4) Гарантированный fallback на PUBLIC_BACKEND_URL, чтобы запросы НИКОГДА не уходили на GitHub Pages
+    function resolveBackendApiUrl() {
+      const candidate = (
+        getParam('api') ||
+        getParam('api_url') ||
+        getParam('apiUrl') ||
+        getParam('backend') ||
+        (typeof window !== 'undefined' && (window.API_URL || window.__API_URL__ || window.BACKEND_URL)) ||
+        ''
+      ).trim();
+
+      // Проверка валидности: не пустой, не null/undefined, не относительный путь, не GitHub Pages
+      const isInvalid = !candidate ||
+        candidate === 'null' ||
+        candidate === 'undefined' ||
+        candidate === '/' ||
+        candidate.includes('github.io') ||
+        (!candidate.startsWith('http://') && !candidate.startsWith('https://'));
+
+      if (isInvalid) {
+        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          return 'http://localhost:8080';
+        }
+        return PUBLIC_BACKEND_URL;
+      }
+
+      return candidate.replace(/\/+$/, '');
+    }
+
+    let apiBase = resolveBackendApiUrl();
+    const API_URL = apiBase; // alias для совместимости
+    window.apiBase = apiBase;
+    window.API_URL = apiBase;
+
+    const rawStatus = (getParam('status') || '').toLowerCase();
+    const rawReason = (getParam('reason') || '').toLowerCase();
+    const expParam = getParam('exp') || getParam('expires_at') || '';
+    const expTsParam = getParam('exp_ts') || '';
+    const expTextParam = getParam('exp_text') || '';
+    const subParam = getParam('u') || getParam('url') || getParam('sub') || getParam('key') || '';
+    const subId = getParam('sub_id') || '';
+    const userAuth = getParam('auth') || '';
+    const userUuid = getParam('uuid') || '';
 
     // Clean subscription URL resolution without dummy fallbacks
     let subUrl = '';
@@ -1374,7 +1427,7 @@
     else if (/Android/i.test(ua)) defaultDev = 'android';
     else if (/Macintosh|Mac OS/i.test(ua)) defaultDev = 'mac';
 
-    let currentDevice = urlParams.get('device') || defaultDev;
+    let currentDevice = getParam('device') || defaultDev;
 
     // DIRECT DOWNLOAD APPS LIST
     const APPS = {
@@ -1573,7 +1626,7 @@
     renderDeviceApps(currentDevice);
 
     // Auto-connect to Happ if requested via query param (only if subscription is active)
-    if ((urlParams.has('happ') || urlParams.get('auto') === 'happ' || urlParams.get('action') === 'happ') && currentSubStatus === 'active' && subUrl) {
+    if ((hasParam('happ') || getParam('auto') === 'happ' || getParam('action') === 'happ') && currentSubStatus === 'active' && subUrl) {
       setTimeout(connectHapp, 300);
     }
 
@@ -1593,23 +1646,18 @@
 
     // Пользователь и количество попыток
     let currentUserId = Number(
-      urlParams.get('uid') ||
-      urlParams.get('user_id') ||
-      urlParams.get('id') ||
+      getParam('uid') ||
+      getParam('user_id') ||
+      getParam('id') ||
       (tg?.initDataUnsafe?.user?.id ? Number(tg.initDataUnsafe.user.id) : 0)
     ) || 0;
 
-    let spinsLeft = Number(urlParams.get('spins') || 0);
+    let spinsLeft = Number(getParam('spins') || 0);
     if (isNaN(spinsLeft) || spinsLeft < 0) spinsLeft = 0;
 
-    // Базовый URL бэкенда для запросов к API
-    let apiBase = (urlParams.get('api') || '').trim();
-    if (!apiBase) {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        apiBase = 'http://localhost:8080';
-      } else {
-        apiBase = 'https://mirava.dedyn.io:8080';
-      }
+    // Базовый URL бэкенда для запросов к API (уже инициализирован вверху, гарантированно валидный)
+    if (!apiBase || apiBase.includes('github.io') || (!apiBase.startsWith('http://') && !apiBase.startsWith('https://'))) {
+      apiBase = PUBLIC_BACKEND_URL;
     }
 
     let currentRotation = 0;
@@ -1747,7 +1795,7 @@
     async function syncWheelStatus() {
       if (!currentUserId) return;
       try {
-        const cleanBase = apiBase.replace(/\/+$/, '');
+        const cleanBase = (apiBase || PUBLIC_BACKEND_URL).replace(/\/+$/, '');
         const url = `${cleanBase}/api/wheel/status?telegram_id=${encodeURIComponent(currentUserId)}`;
         const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
         if (resp.ok) {
@@ -1808,7 +1856,7 @@
       // Отправляем запрос на бэкенд
       let apiResult = null;
       try {
-        const cleanBase = apiBase.replace(/\/+$/, '');
+        const cleanBase = (apiBase || PUBLIC_BACKEND_URL).replace(/\/+$/, '');
         const spinUrl = `${cleanBase}/api/wheel/spin`;
         let resp = null;
 
@@ -2062,7 +2110,7 @@
     syncWheelStatus();
 
     // Плавный скролл к колесу, если передан параметр view=wheel
-    if (urlParams.get('view') === 'wheel') {
+    if (getParam('view') === 'wheel') {
       setTimeout(() => {
         const wheelEl = document.getElementById('wheel-card');
         if (wheelEl) wheelEl.scrollIntoView({ behavior: 'smooth', block: 'center' });

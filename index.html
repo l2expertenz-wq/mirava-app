@@ -728,9 +728,9 @@
   <!-- STATUS CARD -->
   <div class="status-card" id="status-card">
     <div class="status-row">
-      <div class="badge-active" id="status-badge">
-        <span class="badge-pulse" id="status-dot"></span>
-        <span id="status-text">Загрузка...</span>
+      <div class="badge-unpaid" id="status-badge">
+        <span class="badge-dot-unpaid" id="status-dot"></span>
+        <span id="status-text">Проверка...</span>
       </div>
       <div class="servers-count-tag" id="status-tag">
         🌍 Все локации доступны
@@ -866,6 +866,7 @@
     const rawStatus = (urlParams.get('status') || '').toLowerCase().trim();
     const rawReason = (urlParams.get('reason') || '').toLowerCase().trim();
     const expParam = urlParams.get('exp') || urlParams.get('expires_at') || '';
+    const expTsParam = urlParams.get('exp_ts') || '';
     const expTextParam = urlParams.get('exp_text') || '';
     const subParam = urlParams.get('u') || urlParams.get('url') || urlParams.get('sub') || urlParams.get('key') || '';
     const subId = urlParams.get('sub_id') || '';
@@ -882,11 +883,17 @@
       subUrl = `https://mirava.dedyn.io:2096/dasdgfdgergtehjk/${encodeURIComponent(userAuth)}`;
     }
 
-    // Check expiration by date
+    // Check expiration by timestamp or ISO date string
     let isExpiredByDate = false;
-    if (expParam) {
+    if (expTsParam) {
+      const ts = Number(expTsParam);
+      if (!isNaN(ts) && ts > 0 && (ts * 1000) <= Date.now()) {
+        isExpiredByDate = true;
+      }
+    } else if (expParam) {
       try {
-        const expDate = new Date(expParam);
+        const cleanExp = expParam.trim().replace(' ', 'T');
+        const expDate = new Date(cleanExp);
         if (!isNaN(expDate.getTime()) && expDate.getTime() <= Date.now()) {
           isExpiredByDate = true;
         }
@@ -899,20 +906,22 @@
 
     if (rawStatus === 'not_purchased' || rawStatus === 'none' || rawStatus === 'unpaid' || rawStatus === 'no') {
       currentSubStatus = 'not_purchased';
-    } else if (rawStatus === 'inactive' || rawStatus === 'expired' || isExpiredByDate) {
+    } else if (rawStatus === 'inactive' || rawStatus === 'expired' || isExpiredByDate || rawReason === 'expired') {
       currentSubStatus = 'inactive';
     } else if (rawStatus === 'active') {
-      if (subUrl) {
+      if (isExpiredByDate) {
+        currentSubStatus = 'inactive';
+      } else if (subUrl) {
         currentSubStatus = 'active';
       } else {
         currentSubStatus = 'not_purchased';
       }
     } else {
-      // No explicit status provided in query parameters
-      if (subUrl && !isExpiredByDate) {
-        currentSubStatus = 'active';
-      } else if (isExpiredByDate || rawReason === 'expired') {
+      // No explicit status provided in query parameters (e.g. opened directly)
+      if (isExpiredByDate || rawReason === 'expired') {
         currentSubStatus = 'inactive';
+      } else if (subUrl) {
+        currentSubStatus = 'active';
       } else {
         currentSubStatus = 'not_purchased';
       }
@@ -996,6 +1005,11 @@
         if (actionsGrid) actionsGrid.style.display = 'none';
       }
     }
+
+    // Immediate initial status render to avoid flicker or delayed render
+    try {
+      applySubscriptionStatus(currentSubStatus);
+    } catch (e) {}
 
     // Auto-detect initial device tab
     let defaultDev = 'windows';

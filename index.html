@@ -1097,8 +1097,8 @@
     <!-- GUARANTEE INFO ROW -->
     <div class="wheel-info-row">
       <div class="wheel-info-pill">
-        <span>🛡️</span>
-        <span>100% равные условия</span>
+        <span>🎯</span>
+        <span>Гарантированный приз</span>
       </div>
       <div class="wheel-info-pill">
         <span>🎁</span>
@@ -1580,14 +1580,15 @@
     // ==============================================================
     // КОЛЕСО ФОРТУНЫ — ИНТЕРАКТИВ И СВЯЗЬ С БЭКЕНДОМ
     // ==============================================================
-    // 6 секторов с равными шансами (1/6) и гарантированными призами
+    // 7 секторов колеса фортуны
     const WHEEL_SECTORS = [
       { id: 0, days: 1, label: '+1 день',  color: '#2563eb', text_color: '#ffffff', icon: '🎁' },
       { id: 1, days: 2, label: '+2 дня',   color: '#7c3aed', text_color: '#ffffff', icon: '⚡' },
       { id: 2, days: 3, label: '+3 дня',   color: '#db2777', text_color: '#ffffff', icon: '🔥' },
-      { id: 3, days: 1, label: '+1 день',  color: '#059669', text_color: '#ffffff', icon: '💎' },
-      { id: 4, days: 2, label: '+2 дня',   color: '#0284c7', text_color: '#ffffff', icon: '🚀' },
-      { id: 5, days: 3, label: '+3 дня',   color: '#d97706', text_color: '#ffffff', icon: '👑' }
+      { id: 3, days: 5, label: '+5 дней',  color: '#059669', text_color: '#ffffff', icon: '💎' },
+      { id: 4, days: 7, label: '+7 дней',  color: '#0284c7', text_color: '#ffffff', icon: '🚀' },
+      { id: 5, days: 7, label: '+7 дней',  color: '#d97706', text_color: '#ffffff', icon: '👑' },
+      { id: 6, days: 10, label: '+10 дней', color: '#e11d48', text_color: '#ffffff', icon: '🌟' }
     ];
 
     // Пользователь и количество попыток
@@ -1672,31 +1673,33 @@
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
         ctx.stroke();
 
-        // Иконка и текст сектора
+        // Иконка и текст сектора (только приз, без шансов и процентов)
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(startAngle + arc / 2);
-        ctx.translate(radius * 0.65, 0);
+        ctx.translate(radius * 0.64, 0);
         ctx.rotate(Math.PI / 2);
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         // Иконка
-        ctx.font = '22px "Plus Jakarta Sans", sans-serif';
-        ctx.fillText(sector.icon, 0, -11);
+        if (sector.icon) {
+          ctx.font = '19px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText(sector.icon, 0, -11);
+        }
 
-        // Текст дня
-        ctx.font = 'bold 13.5px "Plus Jakarta Sans", sans-serif';
+        // Текст дня / приза (например: +1 день, +3 дня, +10 дней)
+        ctx.font = 'bold 12.5px "Plus Jakarta Sans", sans-serif';
         ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
         ctx.shadowBlur = 4;
         ctx.fillStyle = sector.text_color || '#ffffff';
-        ctx.fillText(sector.label, 0, 13);
+        ctx.fillText(sector.label, 0, 12);
         ctx.restore();
       }
 
-      // Золотистые заклёпки / LED-огоньки по периметру
-      const totalRivets = 24;
+      // Золотистые заклёпки / LED-огоньки по периметру (28 шт., кратно 7 секторам)
+      const totalRivets = 28;
       for (let r = 0; r < totalRivets; r++) {
         const rivetAngle = (r * 2 * Math.PI) / totalRivets;
         const rx = cx + (radius + 4) * Math.cos(rivetAngle);
@@ -1862,18 +1865,24 @@
       const prize = apiResult.prize || WHEEL_SECTORS[safeSectorIndex];
 
       // Точный расчёт угла остановки:
-      // Стрелка сверху = 270 градусов.
-      // Середина сектора = safeSectorIndex * 60 + 30.
-      const phi = safeSectorIndex * 60 + 30;
-      const targetDelta = (270 - phi + 360) % 360;
+      // Стрелка указателя находится вверху (12 часов, что соответствует 270° на Canvas).
+      // Колесо разделено ровно на 7 секторов.
+      const numSectors = WHEEL_SECTORS.length;
+      const sectorArcDeg = 360 / numSectors; // 360 / 7 ≈ 51.42857°
+      // Начальный угол середины выигранного сектора:
+      const sectorCenterDeg = (safeSectorIndex + 0.5) * sectorArcDeg;
+      // Угол поворота колеса по часовой стрелке, чтобы середина сектора оказалась под стрелкой (270°):
+      const targetDelta = ((270 - sectorCenterDeg) % 360 + 360) % 360;
 
       const fullSpins = 6; // 6 полных оборотов (2160°)
-      const currentMod = currentRotation % 360;
+      const currentMod = ((currentRotation % 360) + 360) % 360;
       let addDegrees = targetDelta - currentMod;
       if (addDegrees < 0) addDegrees += 360;
 
-      // Легкое реалистичное смещение (в пределах +/- 6 градусов внутри 60° сектора)
-      const jitter = (Math.random() - 0.5) * 12;
+      // Безопасное реалистичное смещение внутри сектора (в пределах +-15% ширины сектора, т.е. ~ +-7.7°)
+      // Это исключает попадание на границу и гарантирует точное указание на нужный сектор
+      const maxJitter = sectorArcDeg * 0.3;
+      const jitter = (Math.random() - 0.5) * maxJitter;
       const finalRotation = currentRotation + (fullSpins * 360) + addDegrees + jitter;
 
       const rotator = document.getElementById('wheel-rotator');

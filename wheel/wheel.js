@@ -176,6 +176,192 @@
   let cachedSubExpiry = '';
 
   // ==============================================================
+  // 3.5. АУДИОМЕНЕДЖЕР КОЛЕСА ФОРТУНЫ (HTML5 Audio)
+  // ==============================================================
+  const SOUND_CONFIG = {
+    start: 'sounds/spin_start.wav',
+    tick: 'sounds/spin_tick.wav',
+    win: 'sounds/win.wav'
+  };
+
+  // Состояние звука (с сохранением в localStorage)
+  let isMuted = false;
+  try {
+    isMuted = localStorage.getItem('mirava_wheel_muted') === 'true';
+  } catch (e) {
+    isMuted = false;
+  }
+
+  // Создание Audio объектов со стандартными параметрами
+  function createAudio(src, volume = 0.8) {
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.volume = volume;
+    audio.src = src;
+    return audio;
+  }
+
+  const startAudio = createAudio(SOUND_CONFIG.start, 0.75);
+  const winAudio = createAudio(SOUND_CONFIG.win, 0.85);
+
+  // Пул Audio-объектов для тиков (быстрые тики не обрывают друг друга)
+  const TICK_POOL_SIZE = 6;
+  const tickAudioPool = [];
+  for (let i = 0; i < TICK_POOL_SIZE; i++) {
+    tickAudioPool.push(createAudio(SOUND_CONFIG.tick, 0.55));
+  }
+  let currentTickIdx = 0;
+
+  // Флаг мягкой инициализации браузерного автоплея
+  let audioUnlocked = false;
+
+  // Мягкая инициализация аудио по первому клику/касанию пользователя
+  function softInitAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+
+    const allAudios = [startAudio, winAudio, ...tickAudioPool];
+    allAudios.forEach(a => {
+      try {
+        a.load();
+        const p = a.play();
+        if (p !== undefined) {
+          p.then(() => {
+            a.pause();
+            a.currentTime = 0;
+          }).catch(() => {});
+        }
+      } catch (e) {}
+    });
+
+    ['click', 'touchstart', 'pointerdown'].forEach(evt => {
+      document.removeEventListener(evt, softInitAudio, true);
+    });
+  }
+
+  // Навешиваем слушатели на первый пользовательский жест на документе
+  ['click', 'touchstart', 'pointerdown'].forEach(evt => {
+    document.addEventListener(evt, softInitAudio, { capture: true, once: true });
+  });
+
+  // Безопасное воспроизведение с защитой от ошибок блокировки автоплея
+  function safePlayAudio(audio, volume) {
+    if (isMuted || !audio) return;
+    try {
+      if (typeof volume === 'number') {
+        audio.volume = Math.max(0, Math.min(1, volume));
+      }
+      audio.currentTime = 0;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          // Мягкий перехват блокировки автоплея браузером
+          console.warn('Audio playback prevented by browser policy:', err?.name || err);
+        });
+      }
+    } catch (e) {
+      console.warn('Audio play error:', e);
+    }
+  }
+
+  // Воспроизведение звука старта вращения (при клике на кнопку запуска)
+  function playStartSound() {
+    softInitAudio();
+    safePlayAudio(startAudio, 0.75);
+  }
+
+  // Воспроизведение звука тика во время вращения колеса
+  function playTickSound() {
+    if (isMuted) return;
+    softInitAudio();
+    try {
+      const audio = tickAudioPool[currentTickIdx];
+      currentTickIdx = (currentTickIdx + 1) % TICK_POOL_SIZE;
+      safePlayAudio(audio, 0.55);
+    } catch (e) {}
+  }
+
+  // Воспроизведение звука победы (когда колесо остановилось на выигрышном секторе)
+  function playWinSound() {
+    softInitAudio();
+    safePlayAudio(winAudio, 0.85);
+  }
+
+  // Остановка звука победы при закрытии окна
+  function stopWinAudio() {
+    try {
+      if (winAudio) {
+        winAudio.pause();
+        winAudio.currentTime = 0;
+      }
+    } catch (e) {}
+  }
+
+  // Полная остановка всех звуковых эффектов
+  function stopAllAudio() {
+    try {
+      if (startAudio) {
+        startAudio.pause();
+        startAudio.currentTime = 0;
+      }
+      if (winAudio) {
+        winAudio.pause();
+        winAudio.currentTime = 0;
+      }
+      tickAudioPool.forEach(a => {
+        try {
+          a.pause();
+          a.currentTime = 0;
+        } catch (e) {}
+      });
+    } catch (e) {}
+  }
+
+  // Переключение состояния звука (кнопка 🔊/🔇)
+  function toggleMute() {
+    softInitAudio();
+    isMuted = !isMuted;
+    try {
+      localStorage.setItem('mirava_wheel_muted', isMuted ? 'true' : 'false');
+    } catch (e) {}
+
+    updateSoundButtonUI();
+
+    if (isMuted) {
+      stopAllAudio();
+      showToast('Звук выключен 🔇', '🔇');
+    } else {
+      showToast('Звук включен 🔊', '🔊');
+      playTickSound();
+    }
+
+    if (tg?.HapticFeedback) {
+      try {
+        tg.HapticFeedback.selectionChanged();
+      } catch (e) {}
+    }
+  }
+
+  // Обновление иконки и атрибутов кнопки переключения звука
+  function updateSoundButtonUI() {
+    const btn = document.getElementById('sound-toggle-btn');
+    const icon = document.getElementById('sound-toggle-icon');
+    if (!btn) return;
+
+    if (isMuted) {
+      btn.classList.add('is-muted');
+      btn.title = 'Звук: Выключен (нажмите, чтобы включить)';
+      btn.setAttribute('aria-label', 'Включить звук');
+      if (icon) icon.innerText = '🔇';
+    } else {
+      btn.classList.remove('is-muted');
+      btn.title = 'Звук: Включен (нажмите, чтобы отключить)';
+      btn.setAttribute('aria-label', 'Отключить звук');
+      if (icon) icon.innerText = '🔊';
+    }
+  }
+
+  // ==============================================================
   // 4. ОТРИСОВКА КОЛЕСА НА CANVAS (High-DPI Retina)
   // ==============================================================
   function drawWheelCanvas() {
@@ -389,6 +575,8 @@
     }
 
     isSpinning = true;
+    playStartSound(); // Звук старта вращения (при нажатии на кнопку)
+
     const btn = document.getElementById('btn-spin-action');
     const btnText = document.getElementById('btn-spin-text');
     const btnIcon = document.getElementById('btn-spin-icon');
@@ -435,6 +623,7 @@
 
     // Если бэкенд вернул ошибку
     if (!apiResult || !apiResult.success) {
+      stopAllAudio();
       isSpinning = false;
       updateUI();
       if (apiResult && apiResult.error === 'no_spins') {
@@ -477,19 +666,48 @@
     const rotator = document.getElementById('wheel-rotator');
     const pointer = document.getElementById('wheel-pointer');
 
-    // Анимация тика указателя и тактильный отклик
+    // Анимация тиков и воспроизведение звука тиков во время вращения колеса
+    let isTicking = true;
+    let elapsed = 0;
+    let tickTimeout = null;
     let tickCount = 0;
-    const tickInterval = setInterval(() => {
+    const spinDuration = 4500;
+
+    function onWheelTick() {
+      if (!isTicking) return;
       tickCount++;
-      if (pointer) pointer.classList.toggle('tick');
-      if (tg?.HapticFeedback && tickCount % 3 === 0) {
-        tg.HapticFeedback.impactOccurred('light');
+
+      // Звук тика вращения колеса
+      playTickSound();
+
+      // Анимация флажка/указателя
+      if (pointer) {
+        pointer.classList.add('tick');
+        setTimeout(() => {
+          if (pointer) pointer.classList.remove('tick');
+        }, 45);
       }
-      if (tickCount > 28) {
-        clearInterval(tickInterval);
-        if (pointer) pointer.classList.remove('tick');
+
+      // Тактильный отклик в Telegram
+      if (tg?.HapticFeedback && tickCount % 2 === 0) {
+        try {
+          tg.HapticFeedback.impactOccurred('light');
+        } catch (e) {}
       }
-    }, 150);
+
+      // Плавное реалистичное замедление тиков с замедлением вращения колеса
+      const progress = Math.min(1.0, elapsed / spinDuration);
+      const delay = 75 + Math.pow(progress, 2.7) * 440;
+      elapsed += delay;
+
+      if (elapsed < spinDuration - 100) {
+        tickTimeout = setTimeout(onWheelTick, delay);
+      } else {
+        isTicking = false;
+      }
+    }
+
+    onWheelTick();
 
     rotator.style.transition = 'transform 4.5s cubic-bezier(0.12, 0.95, 0.2, 1)';
     rotator.style.transform = `rotate(${finalRotation}deg)`;
@@ -497,7 +715,8 @@
 
     // Ожидание завершения вращения
     setTimeout(() => {
-      clearInterval(tickInterval);
+      isTicking = false;
+      if (tickTimeout) clearTimeout(tickTimeout);
       if (pointer) pointer.classList.remove('tick');
 
       spinsLeft = typeof apiResult.spins_left === 'number' ? apiResult.spins_left : Math.max(0, spinsLeft - 1);
@@ -507,7 +726,14 @@
       isSpinning = false;
       updateUI();
 
-      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      if (tg?.HapticFeedback) {
+        try {
+          tg.HapticFeedback.notificationOccurred('success');
+        } catch (e) {}
+      }
+
+      // Звук остановки и победы
+      playWinSound();
 
       launchConfetti();
       showWinCelebration(prize, wonDays, apiResult);
@@ -623,6 +849,7 @@
   }
 
   function closeWinModal() {
+    stopWinAudio();
     const modal = document.getElementById('win-modal-overlay');
     if (modal) modal.classList.remove('active');
   }
@@ -658,6 +885,11 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Canvas
     drawWheelCanvas();
+
+    // Кнопка включения / выключения звука
+    const soundToggleBtn = document.getElementById('sound-toggle-btn');
+    if (soundToggleBtn) soundToggleBtn.addEventListener('click', toggleMute);
+    updateSoundButtonUI();
 
     // Слушатели вращения
     const spinBtn = document.getElementById('btn-spin-action');

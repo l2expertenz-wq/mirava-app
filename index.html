@@ -199,6 +199,51 @@
       animation: pulse 2s infinite;
     }
 
+    .badge-inactive {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.22) !important;
+      color: #f87171 !important;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid rgba(248, 113, 113, 0.35);
+    }
+
+    .badge-dot-inactive {
+      width: 9px;
+      height: 9px;
+      background: #f87171;
+      border-radius: 50%;
+    }
+
+    .badge-unpaid {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.22) !important;
+      color: #fbbf24 !important;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    .badge-dot-unpaid {
+      width: 9px;
+      height: 9px;
+      background: #fbbf24;
+      border-radius: 50%;
+    }
+
+    .btn-buy-mode {
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.45) !important;
+    }
+
     @keyframes pulse {
       0% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(1.3); }
@@ -681,37 +726,37 @@
   </div>
 
   <!-- STATUS CARD -->
-  <div class="status-card">
+  <div class="status-card" id="status-card">
     <div class="status-row">
-      <div class="badge-active">
-        <span class="badge-pulse"></span>
-        Подписка активна
+      <div class="badge-active" id="status-badge">
+        <span class="badge-pulse" id="status-dot"></span>
+        <span id="status-text">Загрузка...</span>
       </div>
-      <div class="servers-count-tag">
+      <div class="servers-count-tag" id="status-tag">
         🌍 Все локации доступны
       </div>
     </div>
 
     <!-- SUBSCRIPTION LINK BOX -->
-    <div class="sub-box">
+    <div class="sub-box" id="sub-box">
       <div class="sub-label">
-        <span>🔑</span>
-        <span>ВАШ УНИВЕРСАЛЬНЫЙ КЛЮЧ ПОДПИСКИ</span>
-        <span>⚡</span>
+        <span id="sub-icon-left">🔑</span>
+        <span id="sub-label-title">ВАШ УНИВЕРСАЛЬНЫЙ КЛЮЧ ПОДПИСКИ</span>
+        <span id="sub-icon-right">⚡</span>
       </div>
       <div class="sub-value" id="sub-url-text">Загрузка ключа...</div>
       <div class="sub-hint">
-        <span>💡</span>
-        <span>Нажмите кнопку ниже для импорта всех серверов в 1 клик</span>
+        <span id="sub-hint-icon">💡</span>
+        <span id="sub-hint-text">Нажмите кнопку ниже для импорта всех серверов в 1 клик</span>
       </div>
     </div>
 
     <button class="btn-main-copy" id="btn-copy-main">
-      <span>📋</span>
-      <span>Скопировать ключ в 1 клик</span>
+      <span id="btn-copy-icon">📋</span>
+      <span id="btn-copy-text">Скопировать ключ в 1 клик</span>
     </button>
 
-    <div class="btn-actions-grid">
+    <div class="btn-actions-grid" id="btn-actions-grid">
       <button class="btn-connect-happ" id="btn-sub-happ">
         <span>⚡</span> В Happ Proxy
       </button>
@@ -818,17 +863,138 @@
 
     // Parse URL params
     const urlParams = new URLSearchParams(window.location.search);
-    const userUuid = urlParams.get('uuid') || '8490bdd2-7990-41a4-b462-64e2fc4257bf';
-    const userAuth = urlParams.get('auth') || 'wfi4f5766fe1gyay';
+    const rawStatus = (urlParams.get('status') || '').toLowerCase().trim();
+    const rawReason = (urlParams.get('reason') || '').toLowerCase().trim();
+    const expParam = urlParams.get('exp') || urlParams.get('expires_at') || '';
+    const expTextParam = urlParams.get('exp_text') || '';
     const subParam = urlParams.get('u') || urlParams.get('url') || urlParams.get('sub') || urlParams.get('key') || '';
     const subId = urlParams.get('sub_id') || '';
+    const userAuth = urlParams.get('auth') || '';
+    const userUuid = urlParams.get('uuid') || '';
 
-    let subUrl = (subParam && subParam.startsWith('http')) ? subParam : '';
-    if (!subUrl && subId) {
-      subUrl = `https://mirava.dedyn.io:2096/dasdgfdgergtehjk/${subId}`;
+    // Clean subscription URL resolution without dummy fallbacks
+    let subUrl = '';
+    if (subParam && (subParam.startsWith('http://') || subParam.startsWith('https://') || subParam.startsWith('vless://') || subParam.startsWith('vmess://') || subParam.startsWith('ss://'))) {
+      subUrl = subParam;
+    } else if (subId) {
+      subUrl = `https://mirava.dedyn.io:2096/dasdgfdgergtehjk/${encodeURIComponent(subId)}`;
+    } else if (userAuth) {
+      subUrl = `https://mirava.dedyn.io:2096/dasdgfdgergtehjk/${encodeURIComponent(userAuth)}`;
     }
-    if (!subUrl) {
-      subUrl = `https://mirava.dedyn.io:2096/dasdgfdgergtehjk/${userAuth}`;
+
+    // Check expiration by date
+    let isExpiredByDate = false;
+    if (expParam) {
+      try {
+        const expDate = new Date(expParam);
+        if (!isNaN(expDate.getTime()) && expDate.getTime() <= Date.now()) {
+          isExpiredByDate = true;
+        }
+      } catch (e) {}
+    }
+
+    // Determine accurate subscription state:
+    // 'active' | 'inactive' | 'not_purchased'
+    let currentSubStatus = 'not_purchased';
+
+    if (rawStatus === 'not_purchased' || rawStatus === 'none' || rawStatus === 'unpaid' || rawStatus === 'no') {
+      currentSubStatus = 'not_purchased';
+    } else if (rawStatus === 'inactive' || rawStatus === 'expired' || isExpiredByDate) {
+      currentSubStatus = 'inactive';
+    } else if (rawStatus === 'active') {
+      if (subUrl) {
+        currentSubStatus = 'active';
+      } else {
+        currentSubStatus = 'not_purchased';
+      }
+    } else {
+      // No explicit status provided in query parameters
+      if (subUrl && !isExpiredByDate) {
+        currentSubStatus = 'active';
+      } else if (isExpiredByDate || rawReason === 'expired') {
+        currentSubStatus = 'inactive';
+      } else {
+        currentSubStatus = 'not_purchased';
+      }
+    }
+
+    // Render subscription status card dynamically
+    function applySubscriptionStatus(status) {
+      const statusBadge = document.getElementById('status-badge');
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+      const statusTag = document.getElementById('status-tag');
+      const subTitle = document.getElementById('sub-label-title');
+      const subIconLeft = document.getElementById('sub-icon-left');
+      const subIconRight = document.getElementById('sub-icon-right');
+      const subUrlText = document.getElementById('sub-url-text');
+      const subHintText = document.getElementById('sub-hint-text');
+      const btnCopy = document.getElementById('btn-copy-main');
+      const btnCopyText = document.getElementById('btn-copy-text');
+      const btnCopyIcon = document.getElementById('btn-copy-icon');
+      const actionsGrid = document.getElementById('btn-actions-grid');
+
+      if (!statusBadge) return;
+
+      if (status === 'active') {
+        statusBadge.className = 'badge-active';
+        statusDot.className = 'badge-pulse';
+        statusText.innerText = 'Подписка активна';
+        statusTag.innerText = expTextParam ? `⏳ До ${expTextParam}` : '🌍 Все локации доступны';
+        statusTag.style.color = '#ffffff';
+
+        if (subIconLeft) subIconLeft.innerText = '🔑';
+        if (subTitle) subTitle.innerText = 'ВАШ УНИВЕРСАЛЬНЫЙ КЛЮЧ ПОДПИСКИ';
+        if (subIconRight) subIconRight.innerText = '⚡';
+        if (subUrlText) subUrlText.innerText = subUrl;
+        if (subHintText) subHintText.innerText = 'Нажмите кнопку ниже для импорта всех серверов в 1 клик';
+
+        if (btnCopy) {
+          btnCopy.classList.remove('btn-buy-mode');
+          if (btnCopyIcon) btnCopyIcon.innerText = '📋';
+          if (btnCopyText) btnCopyText.innerText = 'Скопировать ключ в 1 клик';
+        }
+        if (actionsGrid) actionsGrid.style.display = 'grid';
+      } else if (status === 'inactive') {
+        statusBadge.className = 'badge-inactive';
+        statusDot.className = 'badge-dot-inactive';
+        statusText.innerText = 'Неактивна';
+        statusTag.innerText = expTextParam ? `⚠️ Истекла ${expTextParam}` : '⚠️ Срок действия истёк';
+        statusTag.style.color = '#fca5a5';
+
+        if (subIconLeft) subIconLeft.innerText = '🔒';
+        if (subTitle) subTitle.innerText = 'СТАТУС ПОДПИСКИ: НЕАКТИВНА';
+        if (subIconRight) subIconRight.innerText = '⚠️';
+        if (subUrlText) subUrlText.innerText = 'Срок действия вашей подписки истёк. Продлите доступ в Telegram-боте для подключения ко всем серверам.';
+        if (subHintText) subHintText.innerText = 'Перейдите в чат бота и выберите «Купить подписку» для возобновления доступа';
+
+        if (btnCopy) {
+          btnCopy.classList.add('btn-buy-mode');
+          if (btnCopyIcon) btnCopyIcon.innerText = '💳';
+          if (btnCopyText) btnCopyText.innerText = 'Продлить подписку в боте';
+        }
+        if (actionsGrid) actionsGrid.style.display = 'none';
+      } else {
+        // 'not_purchased'
+        statusBadge.className = 'badge-unpaid';
+        statusDot.className = 'badge-dot-unpaid';
+        statusText.innerText = 'Не куплена';
+        statusTag.innerText = '🔒 Требуется подписка';
+        statusTag.style.color = '#fde68a';
+
+        if (subIconLeft) subIconLeft.innerText = '🔒';
+        if (subTitle) subTitle.innerText = 'СТАТУС ПОДПИСКИ: НЕ КУПЛЕНА';
+        if (subIconRight) subIconRight.innerText = '✨';
+        if (subUrlText) subUrlText.innerText = 'У вас пока нет активной подписки. Активируйте бесплатный тест на 3 дня или выберите тариф в Telegram-боте.';
+        if (subHintText) subHintText.innerText = 'Нажмите кнопку ниже для перехода в главное меню бота и выбора тарифа';
+
+        if (btnCopy) {
+          btnCopy.classList.add('btn-buy-mode');
+          if (btnCopyIcon) btnCopyIcon.innerText = '🚀';
+          if (btnCopyText) btnCopyText.innerText = 'Оформить подписку в боте';
+        }
+        if (actionsGrid) actionsGrid.style.display = 'none';
+      }
     }
 
     // Auto-detect initial device tab
@@ -890,6 +1056,10 @@
 
     // Copy to clipboard
     function copyText(str, msg = 'Ключ скопирован в буфер!') {
+      if (!str) {
+        showToast('⚠️ Ключ подписки недоступен', '❌');
+        return;
+      }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(str).then(() => showToast(msg)).catch(() => fallbackCopy(str, msg));
       } else {
@@ -911,6 +1081,10 @@
 
     // Action: Connect via Happ
     function connectHapp() {
+      if (currentSubStatus !== 'active' || !subUrl) {
+        showToast('⚠️ Подписка не активна. Сначала оформите её в боте.', '🔒');
+        return;
+      }
       copyText(subUrl, 'Ключ скопирован в буфер обмена!');
       if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
@@ -939,6 +1113,10 @@
 
     // Action: Connect via INCY
     function connectIncy() {
+      if (currentSubStatus !== 'active' || !subUrl) {
+        showToast('⚠️ Подписка не активна. Сначала оформите её в боте.', '🔒');
+        return;
+      }
       copyText(subUrl, 'Ключ скопирован в буфер обмена!');
       if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
@@ -995,27 +1173,40 @@
       }
     });
 
-    // Populate Sub URL Text
-    const subTextEl = document.getElementById('sub-url-text');
-    if (subTextEl) {
-      subTextEl.innerText = subUrl;
+    // Main button action: Copy key or Redirect to bot
+    function handleMainButtonClick() {
+      if (currentSubStatus === 'active') {
+        if (!subUrl) {
+          showToast('⚠️ Ключ подписки не найден', '❌');
+          return;
+        }
+        copyText(subUrl, 'Ключ скопирован! Вставьте в Happ или v2ray');
+      } else {
+        if (tg) {
+          try {
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            tg.close();
+            return;
+          } catch (e) {}
+        }
+        showToast('💡 Откройте меню Telegram-бота для выбора тарифа!', '💬');
+      }
     }
 
     // Attach Event Listeners
-    document.getElementById('btn-copy-main').addEventListener('click', () => {
-      copyText(subUrl, 'Ключ скопирован! Вставьте в Happ или v2ray');
-    });
-
+    document.getElementById('btn-copy-main').addEventListener('click', handleMainButtonClick);
     document.getElementById('btn-sub-happ').addEventListener('click', connectHapp);
     document.getElementById('btn-sub-incy').addEventListener('click', connectIncy);
 
     // Initial render
+    applySubscriptionStatus(currentSubStatus);
     renderDeviceApps(currentDevice);
 
-    // Auto-connect to Happ if requested via query param
-    if (urlParams.has('happ') || urlParams.get('auto') === 'happ' || urlParams.get('action') === 'happ') {
+    // Auto-connect to Happ if requested via query param (only if subscription is active)
+    if ((urlParams.has('happ') || urlParams.get('auto') === 'happ' || urlParams.get('action') === 'happ') && currentSubStatus === 'active' && subUrl) {
       setTimeout(connectHapp, 300);
     }
+
 
   </script>
 </body>

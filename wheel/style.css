@@ -1,0 +1,690 @@
+/* ============================================================== */
+/*  MIRAVA FORTUNE WHEEL — TELEGRAM MINI APP STYLES               */
+/* ============================================================== */
+
+:root {
+  --bg-main: #0b0f19;
+  --bg-card: #131d31;
+  --bg-card-inner: rgba(255, 255, 255, 0.04);
+  --border-card: rgba(255, 255, 255, 0.12);
+  --border-card-hover: rgba(251, 191, 36, 0.4);
+  
+  --gold: #fbbf24;
+  --gold-glow: rgba(251, 191, 36, 0.4);
+  --amber: #f59e0b;
+  --pink: #ec4899;
+  --purple: #8b5cf6;
+  --blue: #38bdf8;
+  --green: #10b981;
+  --red: #ef4444;
+  
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --text-sub: #cbd5e1;
+  
+  --card-radius: 24px;
+  --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 30px rgba(56, 189, 248, 0.08);
+  --glow-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15) 0%, transparent 55%),
+    radial-gradient(circle at 80% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Telegram theme compatibility */
+body.tg-theme {
+  background-color: var(--tg-theme-bg-color, var(--bg-main));
+}
+
+.app-wrapper {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 16px 14px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ============================================================== */
+/* HEADER & BRANDING                                             */
+/* ============================================================== */
+.app-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-card);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-sub);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.brand-icon {
+  font-size: 16px;
+  filter: drop-shadow(0 0 6px var(--gold));
+}
+
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  display: inline-block;
+}
+
+.app-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 30%, #fbbf24 80%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: 2px;
+}
+
+.app-subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+  max-width: 320px;
+}
+
+/* ============================================================== */
+/* USER BAR & STATUS                                              */
+/* ============================================================== */
+.user-status-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 18px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.user-info-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.user-avatar-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name-text {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-sub-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-sub-label b {
+  color: var(--green);
+}
+
+.wheel-spins-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(245, 158, 11, 0.16);
+  color: var(--gold);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 800;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.18);
+  flex-shrink: 0;
+}
+
+.spins-live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+  70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+  100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+}
+
+/* ============================================================== */
+/* WHEEL CARD & STAGE                                             */
+/* ============================================================== */
+.wheel-main-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--card-radius);
+  padding: 20px 16px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wheel-main-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b 0%, #ec4899 50%, #38bdf8 100%);
+}
+
+.wheel-stage-container {
+  position: relative;
+  width: 290px;
+  height: 290px;
+  margin: 8px auto 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-glow-bg {
+  position: absolute;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.24) 0%, rgba(236, 72, 153, 0.16) 45%, transparent 70%);
+  filter: blur(22px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wheel-rotator {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.28);
+  transform: rotate(0deg);
+  will-change: transform;
+}
+
+#wheel-canvas {
+  display: block;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+}
+
+/* POINTER / ARROW AT TOP */
+.wheel-pointer {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.85));
+  pointer-events: none;
+  transition: transform 0.08s ease;
+}
+
+.wheel-pointer.tick {
+  transform: translateX(-50%) scale(1.18) translateY(-3px);
+}
+
+/* CENTER CAP */
+.wheel-center-cap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #1e293b 0%, #030712 100%);
+  border: 3.5px solid var(--gold);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.wheel-center-cap:active {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+/* ============================================================== */
+/* PRIMARY ACTION BUTTON                                          */
+/* ============================================================== */
+.btn-spin-action {
+  background: linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #8b5cf6 100%);
+  color: #ffffff;
+  border: none;
+  padding: 16px 20px;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+  transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.btn-spin-action:active:not(:disabled) {
+  transform: scale(0.98);
+  opacity: 0.94;
+}
+
+.btn-spin-action:disabled {
+  opacity: 0.85;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-spin-action.btn-no-spins {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  color: var(--text-sub);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-spin-action.pulse-btn {
+  animation: spinBtnPulse 2.2s infinite;
+}
+
+@keyframes spinBtnPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.65), 0 8px 25px rgba(236, 72, 153, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(245, 158, 11, 0), 0 8px 25px rgba(236, 72, 153, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0), 0 8px 25px rgba(236, 72, 153, 0.45);
+  }
+}
+
+.btn-icon-spin {
+  font-size: 20px;
+  display: inline-block;
+}
+
+/* ============================================================== */
+/* HIGHLIGHT PILLS / INFO ROW                                     */
+/* ============================================================== */
+.info-pills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.info-pill {
+  background: var(--bg-card-inner);
+  border: 1px solid var(--border-card);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.info-pill-icon {
+  font-size: 16px;
+}
+
+/* ============================================================== */
+/* SECTORS / PRIZES SHOWCASE                                      */
+/* ============================================================== */
+.prizes-showcase-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--card-radius);
+  padding: 18px 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.16);
+  color: var(--green);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.prizes-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.prize-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.prize-item.special-prize {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.prize-item-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.prize-item-tag {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+/* ============================================================== */
+/* HOW TO GET SPINS CARD                                          */
+/* ============================================================== */
+.rules-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--card-radius);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rules-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  color: var(--text-sub);
+}
+
+.rule-row b {
+  color: var(--gold);
+}
+
+/* ============================================================== */
+/* MODALS (WIN & INFO)                                            */
+/* ============================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  background: #0f172a;
+  border: 1px solid var(--border-card);
+  border-radius: 24px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9);
+  transform: scale(0.92) translateY(12px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.active .modal-card {
+  transform: scale(1) translateY(0);
+}
+
+.win-modal-card {
+  border: 2px solid var(--gold) !important;
+  box-shadow: 0 0 50px rgba(251, 191, 36, 0.4), 0 25px 50px rgba(0, 0, 0, 0.95) !important;
+}
+
+.modal-icon-badge {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: bounceCelebration 1.2s infinite;
+}
+
+@keyframes bounceCelebration {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.win-prize-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+  color: #ffffff !important;
+  padding: 10px 24px;
+  border-radius: 18px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  margin: 14px 0 16px;
+  box-shadow: 0 6px 25px rgba(245, 158, 11, 0.55);
+}
+
+.modal-desc {
+  font-size: 13.5px;
+  color: var(--text-sub);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.modal-action-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+  color: #ffffff;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  transition: transform 0.15s ease;
+}
+
+.modal-action-btn:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================== */
+/* CONFETTI & TOAST                                               */
+/* ============================================================== */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1001;
+  display: none;
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  white-space: nowrap;
+}
+
+.toast-container.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Demo warning badge */
+.demo-banner {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px dashed rgba(251, 191, 36, 0.4);
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  color: #fbbf24;
+  text-align: center;
+  display: none;
+}

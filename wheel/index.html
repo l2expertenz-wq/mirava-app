@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Колесо фортуны — Mirava VPN</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Typography: Google Fonts Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Mobile meta -->
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+
+  <!-- CONFETTI CANVAS (WIN CELEBRATION) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-wrapper">
+
+    <!-- HEADER / BRANDING -->
+    <header class="app-header">
+      <div class="brand-badge">
+        <span class="brand-icon">⚡</span>
+        <span>Mirava VPN</span>
+        <span class="brand-dot"></span>
+      </div>
+      <h1 class="app-title">Колесо фортуны</h1>
+      <p class="app-subtitle">Испытайте удачу и получите гарантированные бонусные дни к подписке!</p>
+    </header>
+
+    <!-- DEMO / PREVIEW BANNER (IF OPENED OUTSIDE TELEGRAM) -->
+    <div class="demo-banner" id="demo-banner">
+      💡 Откройте мини-приложение через Telegram-бота <b>@MiravaVPN_bot</b> для автоматического начисления выигрыша на ваш аккаунт.
+    </div>
+
+    <!-- USER STATUS & SPINS BAR -->
+    <div class="user-status-card">
+      <div class="user-info-side">
+        <div class="user-avatar-badge" id="user-avatar-badge">👤</div>
+        <div class="user-details">
+          <span class="user-name-text" id="user-name-text">Загрузка...</span>
+          <span class="user-sub-label">
+            <span>📅 Подписка:</span>
+            <span id="user-sub-status">Проверка...</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="wheel-spins-pill" id="wheel-spins-pill">
+        <span class="spins-live-dot"></span>
+        <span>Спины: <b id="wheel-spins-count">0</b></span>
+      </div>
+    </div>
+
+    <!-- MAIN WHEEL CARD -->
+    <main class="wheel-main-card">
+
+      <!-- WHEEL STAGE -->
+      <div class="wheel-stage-container">
+        <!-- AMBIENT GLOW -->
+        <div class="wheel-glow-bg"></div>
+
+        <!-- STATIONARY POINTER ARROW (AT TOP 12 O'CLOCK) -->
+        <div class="wheel-pointer" id="wheel-pointer">
+          <svg width="34" height="42" viewBox="0 0 34 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17 40L4 10C2 6 5 2 9 2H25C29 2 32 6 30 10L17 40Z" fill="url(#pointer-grad)" stroke="#ffffff" stroke-width="2"/>
+            <circle cx="17" cy="12" r="4.5" fill="#ffffff" filter="drop-shadow(0 0 4px #fbbf24)"/>
+            <defs>
+              <linearGradient id="pointer-grad" x1="17" y1="2" x2="17" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#fbbf24"/>
+                <stop offset="1" stop-color="#f59e0b"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <!-- ROTATING WHEEL -->
+        <div class="wheel-rotator" id="wheel-rotator">
+          <canvas id="wheel-canvas" width="280" height="280"></canvas>
+        </div>
+
+        <!-- CENTER CAP BUTTON -->
+        <div class="wheel-center-cap" id="wheel-center-cap" title="Крутить колесо">
+          <span id="wheel-center-icon">⚡</span>
+        </div>
+      </div>
+
+      <!-- PRIMARY SPIN BUTTON -->
+      <button class="btn-spin-action pulse-btn" id="btn-spin-action">
+        <span class="btn-icon-spin" id="btn-spin-icon">🎰</span>
+        <span id="btn-spin-text">Испытать удачу</span>
+      </button>
+
+      <!-- HIGHLIGHT INFO PILLS -->
+      <div class="info-pills-grid">
+        <div class="info-pill trigger-info-modal" style="cursor: pointer;">
+          <span class="info-pill-icon">🎯</span>
+          <span>100% Гарантия приза</span>
+        </div>
+        <div class="info-pill trigger-info-modal" style="cursor: pointer;">
+          <span class="info-pill-icon">⚡</span>
+          <span>Продление в 1 клик</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- PRIZES SHOWCASE SECTION -->
+    <section class="prizes-showcase-card">
+      <div class="section-head">
+        <div class="section-title">
+          <span>🎁</span>
+          <span>Призы в Колесе</span>
+        </div>
+        <span class="section-badge">7 секторов</span>
+      </div>
+
+      <div class="prizes-list">
+        <div class="prize-item">
+          <span class="prize-item-icon">🎁</span>
+          <span>+1 день</span>
+          <span class="prize-item-tag">Старт</span>
+        </div>
+        <div class="prize-item">
+          <span class="prize-item-icon">⚡</span>
+          <span>+2 дня</span>
+          <span class="prize-item-tag">Энергия</span>
+        </div>
+        <div class="prize-item">
+          <span class="prize-item-icon">🔥</span>
+          <span>+3 дня</span>
+          <span class="prize-item-tag">Драйв</span>
+        </div>
+        <div class="prize-item">
+          <span class="prize-item-icon">💎</span>
+          <span>+5 дней</span>
+          <span class="prize-item-tag">Премиум</span>
+        </div>
+        <div class="prize-item">
+          <span class="prize-item-icon">🚀</span>
+          <span>+7 дней</span>
+          <span class="prize-item-tag">Турбо</span>
+        </div>
+        <div class="prize-item">
+          <span class="prize-item-icon">👑</span>
+          <span>+7 дней VIP</span>
+          <span class="prize-item-tag">VIP</span>
+        </div>
+        <div class="prize-item special-prize">
+          <span class="prize-item-icon">🌟</span>
+          <span>+10 дней к подписке</span>
+          <span class="prize-item-tag">🔥 ДЖЕКПОТ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES & HOW TO GET SPINS -->
+    <section class="rules-card">
+      <div class="rules-title">
+        <span>🎟</span>
+        <span>Как получить вращения:</span>
+      </div>
+      <div class="rules-list">
+        <div class="rule-row">
+          <span>Тариф 1 месяц</span>
+          <b>+1 вращение</b>
+        </div>
+        <div class="rule-row">
+          <span>Тариф 3 месяца</span>
+          <b>+3 вращения</b>
+        </div>
+        <div class="rule-row">
+          <span>Тариф 6 месяцев</span>
+          <b>+6 вращений</b>
+        </div>
+        <div class="rule-row">
+          <span>Тариф 1 год</span>
+          <b>+12 вращений 🌟</b>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- WIN CELEBRATION MODAL -->
+  <div class="modal-overlay" id="win-modal-overlay">
+    <div class="modal-card win-modal-card">
+      <div class="modal-icon-badge" id="win-modal-icon">🎉</div>
+      <h2 class="modal-title">ВЫИГРЫШ В КОЛЕСЕ!</h2>
+      <div class="win-prize-badge" id="win-prize-badge">🎁 +1 день</div>
+      <div class="modal-desc" id="win-modal-desc"></div>
+      <button class="modal-action-btn" id="win-modal-close-btn">Отлично! Забрать приз 🚀</button>
+    </div>
+  </div>
+
+  <!-- HOW TO GET SPINS INFO MODAL -->
+  <div class="modal-overlay" id="info-modal-overlay">
+    <div class="modal-card">
+      <div class="modal-icon-badge">🎟</div>
+      <h2 class="modal-title">Вращения Колеса</h2>
+      <div class="modal-desc" style="text-align: left; margin-top: 12px;">
+        Каждый прокрут колеса гарантированно продлевает вашу подписку на бонусные дни!<br><br>
+        <b>Начисление попыток при оплате тарифа:</b><br>
+        • <b>1 месяц</b> — 1 спин<br>
+        • <b>3 месяца</b> — 3 спина<br>
+        • <b>6 месяцев</b> — 6 спинов<br>
+        • <b>1 год</b> — 12 спинов 🌟<br><br>
+        <i>Оплатить тариф или пополнить баланс можно в Telegram-боте.</i>
+      </div>
+      <button class="modal-action-btn" id="info-modal-close-btn">Понятно</button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toast-container">
+    <span id="toast-icon">ℹ️</span>
+    <span id="toast-text">Уведомление</span>
+  </div>
+
+  <!-- Logic -->
+  <script src="wheel.js"></script>
+</body>
+</html>
